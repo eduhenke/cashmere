@@ -1,0 +1,7 @@
+# Compilation results
+*.~asm
+*.debug
+*.list
+*.symbol
+*.exe_BKP6641
+*.exe
