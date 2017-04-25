@@ -20,9 +20,9 @@ start:
     ; add your code here
     
     mov si, offset string
-    println
+    call println
     mov si, offset pkey
-    println
+    call println
     
     ; end code
             
@@ -38,7 +38,7 @@ start:
     int 21h    
 ends
 
-println proc
+println:
 	push dx
 	push cx
 	push ax
@@ -66,7 +66,6 @@ println proc
 		pop dx
 		
 		ret
-println endp
 
 
 end start ; set entry point and stop the assembler.
