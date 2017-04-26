@@ -1,9 +1,8 @@
 ; multi-segment executable file template.
 
 data segment
-    ; add your data here!
-    string db "print test$"
-    pkey db "press any key...$"
+    produtos db "macarrao$", "leite$", "quiboa$"
+    precos   db 3, 50      , 3, 99   , 2, 99 
 ends
 
 stack segment
