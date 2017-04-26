@@ -1,6 +1,26 @@
 ; multi-segment executable file template.
+#start=LED_Display.exe#
+#start=Printer.exe#
+
+printerln macro str
+    push si
+    mov si, offset str
+    call printerln_proc
+    pop si
+endm
+
+display macro val   ; mostra em decimal
+    push ax
+    mov ax, val
+    out 199, ax
+    pop ax
+endm
 
 data segment
+    test_string db "Teste...$"
+    
+    ;Estrutura dos dados
+    ;IDs         01h           02h       03h...
     produtos db "macarrao$", "leite$", "quiboa$"
     precos   db 3, 50      , 3, 99   , 2, 99 
 ends
@@ -10,34 +30,26 @@ stack segment
 ends
 
 code segment
-start:
-; set segment registers:
+    call sys_start
+    
+    display 200
+    printerln test_string
+    
+    jmp sys_exit   
+ends
+
+sys_start: ;set segment registers:
     mov ax, data
     mov ds, ax
     mov es, ax
+    ret
+; end sys_start
 
-    ; add your code here
-    
-    mov si, offset string
-    call println
-    mov si, offset pkey
-    call println
-    
-    ; end code
-            
-    lea dx, pkey
-    mov ah, 9
-    int 21h        ; output string at ds:dx
-    
-    ; wait for any key....    
-    mov ah, 1
+sys_exit: ;exit to operating system.
+    mov ax, 4c00h
     int 21h
     
-    mov ax, 4c00h ; exit to operating system.
-    int 21h    
-ends
-
-println:
+printerln_proc:
 	push dx
 	push cx
 	push ax
@@ -62,9 +74,6 @@ println:
 		
 		pop ax
 		pop cx
-		pop dx
-		
-		ret
-
-
-end start ; set entry point and stop the assembler.
+		pop dx	
+        ret
+;end printerln_proc
