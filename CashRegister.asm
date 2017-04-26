@@ -17,6 +17,10 @@ display macro val   ; mostra em decimal
 endm
 
 data segment
+    ; add your data here!
+    string db "print test$"
+    pkey db "press any key...$"
+    barcode db 00h
     test_string db "Teste...$"
     
     ;Estrutura dos dados
@@ -30,23 +34,69 @@ stack segment
 ends
 
 code segment
-    call sys_start
+    call sys_setup
     
+	; add your code here
+	
     display 200
     printerln test_string
+	
+	; int 90h test
+	mov cx, 2
+    lop:
+    	inc cx
+    	mov al, barcode
+    	out 22h, al
+    	loop lop
+	
+    ; print test
+    mov si, offset string
+    call printerln
+    mov si, offset pkey
+    call printerln
     
+    ; end code
+
     jmp sys_exit   
 ends
 
-sys_start: ;set segment registers:
+sys_setup: ;set segment registers:
     mov ax, data
     mov ds, ax
     mov es, ax
+	
+	; config int 90h
+    push es
+    mov ax, 0h
+    mov es, ax
+    mov es:[4*90h+1], 0000h
+	mov es:[4*90h], offset barcode_read
+	mov es:[4*90h + 2], cs
+	pop es
+	
     ret
-; end sys_start
+; end sys_setup
+
+barcode_read:
+	push ax
+	
+	in al, 20h
+	mov barcode, al
+	
+	pop ax
+	iret
+
 
 sys_exit: ;exit to operating system.
-    mov ax, 4c00h
+    lea dx, pkey
+    mov ah, 9
+    int 21h        ; output string at ds:dx
+    
+    ; wait for any key....    
+    mov ah, 1
+    int 21h
+	
+	mov ax, 4c00h
     int 21h
     
 printerln_proc:
