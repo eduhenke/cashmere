@@ -4,6 +4,7 @@ data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
+    barcode db 00h
 ends
 
 stack segment
@@ -19,10 +20,29 @@ start:
 
     ; add your code here
     
+    ; config int 90h
+    push es
+    mov ax, 0h
+    mov es, ax
+    mov es:[4*90h+1], 0000h
+	mov es:[4*90h], offset barcode_read
+	mov es:[4*90h + 2], cs
+	pop es
+	
+	
+	; int 90h test
+	mov cx, 2
+    lop:
+    	inc cx
+    	mov al, barcode
+    	out 22h, al
+    	loop lop
+	
+    ; print test
     mov si, offset string
-    call println
+    call printerln
     mov si, offset pkey
-    call println
+    call printerln
     
     ; end code
             
@@ -38,7 +58,16 @@ start:
     int 21h    
 ends
 
-println:
+barcode_read:
+	push ax
+	
+	in al, 20h
+	mov barcode, al
+	
+	pop ax
+	iret
+
+printerln:
 	push dx
 	push cx
 	push ax
