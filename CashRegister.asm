@@ -9,10 +9,18 @@ printerln macro str
     pop si
 endm
 
-display macro val   ; mostra em decimal
+display_word macro val   ; mostra word no display
     push ax
     mov ax, val
     out 199, ax
+    pop ax
+endm
+
+display_byte macro val   ; mostra byte/char no display
+    push ax
+    xor ax, ax	; limpa AX
+    mov al, val
+    out 199, al
     pop ax
 endm
 
@@ -38,22 +46,19 @@ code segment
     
 	; add your code here
 	
-    display 200
+    display_byte 200
     printerln test_string
 	
 	; int 90h test
 	mov cx, 2
     lop:
     	inc cx
-    	mov al, barcode
-    	out 22h, al
+    	display_byte barcode
     	loop lop
 	
     ; print test
-    mov si, offset string
-    call printerln
-    mov si, offset pkey
-    call printerln
+    printerln string
+    printerln pkey
     
     ; end code
 
