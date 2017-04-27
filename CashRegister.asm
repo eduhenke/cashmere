@@ -41,7 +41,7 @@ data segment
     string db "print test$"
     pkey db "press any key...$"
     barcode db 0Ah
-    item_name db 0 dup(2)
+    item_name dw 0
     test_string db "Teste...$"
     
     ;Estrutura dos dados
@@ -58,8 +58,11 @@ code segment
     call sys_setup
     
 	; add your code here
+	mov barcode, 1
 
 	get_name barcode
+	
+	printerln produtos[item_name]
 	
 ;	printerln produtos
 ;	
