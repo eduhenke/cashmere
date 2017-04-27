@@ -24,16 +24,29 @@ display_byte macro val   ; mostra byte/char no display
     pop ax
 endm
 
+get_name macro code
+	pusha
+	
+	xor ax, ax
+	mov al, code
+	
+	call get_name_proc
+	
+	popa
+endm
+
+
 data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
-    barcode db 00h
+    barcode db 0Ah
+    item_name db 0 dup(2)
     test_string db "Teste...$"
     
     ;Estrutura dos dados
     ;IDs         01h           02h       03h...
-    produtos db "macarrao$", "leite$", "quiboa$"
+    produtos db "ERROR$", "macarrao$", "leite$", "quiboa$"
     precos   db 3, 50      , 3, 99   , 2, 99 
 ends
 
@@ -45,20 +58,24 @@ code segment
     call sys_setup
     
 	; add your code here
+
+	get_name barcode
 	
-    display_byte 200
-    printerln test_string
-	
-	; int 90h test
-	mov cx, 2
-    lop:
-    	inc cx
-    	display_byte barcode
-    	loop lop
-	
-    ; print test
-    printerln string
-    printerln pkey
+;	printerln produtos
+;	
+;    display_byte 200
+;    printerln test_string
+;	
+;	; int 90h test
+;	mov cx, 2
+;    lop:
+;    	inc cx
+;    	display_byte barcode
+;    	loop lop
+;	
+;    ; print test
+;    printerln string
+;    printerln pkey
     
     ; end code
 
@@ -131,4 +148,30 @@ printerln_proc:
 		pop cx
 		pop dx	
         ret
-;end printerln_proc
+
+
+get_name_proc:
+	mov si, 0
+	xor bx, bx
+	cmp ax, bx
+	jbe ret_name
+	
+	mov cx, 100
+	
+	search_name:
+		cmp produtos[si], "$"
+		jne continue
+		
+		new_word:
+		inc bx
+		cmp ax, bx
+		je ret_name
+		
+		continue:
+		inc si
+		loop search_name
+	
+	
+	ret_name:
+		mov item_name, si
+	ret
