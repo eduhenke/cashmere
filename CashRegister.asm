@@ -25,12 +25,19 @@ display_byte macro val   ; mostra byte/char no display
     pop ax
 endm
 
-get_name macro code
+get_product macro code
 	pusha
 	
 	xor ax, ax
-	mov al, code
-	
+	mov al, barcode
+	mov bx, 2
+	mul bx
+	mov si, ax
+	mov ax, prices[si]
+    mov item_price, ax
+	display_word item_price
+	xor ax, ax
+	mov al, barcode
 	call get_name_proc
 	
 	popa
@@ -42,13 +49,14 @@ data segment
     string db "print test$"
     pkey db "press any key...$"
     barcode db 0Ah
-    item_name dw 3
+    item_name dw 0
+    item_price dw 0
     test_string db "Teste...$"
     
     ;Estrutura dos dados
     ;IDs           0           1          2
-    produtos db "ERROR$", "macarrao$", "leite$", "quiboa$"
-    precos   db 3, 50      , 3, 99   , 2, 99 
+    products db "ERROR$", "macarrao$", "leite$", "quiboa$"
+    prices   dw 0FFFFh,   350,         399,       299 
 ends
 
 stack segment
@@ -60,10 +68,12 @@ code segment
     
 	; add your code here
 	mov barcode, 2
-	get_name barcode
-	printerln produtos, item_name
 	
-;	printerln produtos
+	get_product barcode
+	printerln products, item_name
+	display_word item_price
+	
+;	printerln products
 ;	
 ;    display_byte 200
 ;    printerln test_string
@@ -153,7 +163,7 @@ printerln_proc:
 
 
 get_name_proc:
-	mov si, 0
+    xor si, si
 	xor bx, bx
 	cmp ax, bx
 	jbe ret_name
@@ -161,7 +171,7 @@ get_name_proc:
 	mov cx, 100
 	
 	search_name:
-		cmp produtos[si], "$"
+		cmp products[si], "$"
 		jne continue
 		
 		new_word:
@@ -178,3 +188,7 @@ get_name_proc:
 		inc si
 		mov item_name, si
 	ret
+	
+get_price_proc:
+    mov si, 0
+    
