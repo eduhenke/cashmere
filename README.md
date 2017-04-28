@@ -10,16 +10,16 @@ Nathan Willian  D. S.
 Obs: tenta modularizar o código, deixando funções bonitinhas ao invés de ```n``` linhas de código pra uma função básica
 ### Agora
 * Tratador de interrupção
-### Daqui a pouco
 * Procedures para limpar memória/impressora/display
-* Procedures para pegar produtos/preços pelo ID
-* Procedure para imprimir nome e preço formatados
+* Procedure para imprimir nome e preço formatados(Alfinete)
+* Calcular total e mostrar na tela a cada get_product(Henke)
 ### Depois
 * Pegar e tratar input do DOS
 * Cadastrar produtos
 ### Feito
 * ~~Mostrar no display(Henke)~~
-* ~~Pegar input das chaves(Bruno)~~
+* ~~Pegar input das chaves(Alfinete)~~
+* ~~Procedures para pegar produtos/preços pelo ID~~
 
 ## Estrutura dos dados:
 ```
