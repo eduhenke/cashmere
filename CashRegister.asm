@@ -29,7 +29,7 @@ get_product macro code
 	pusha
 	
 	xor ax, ax
-	mov al, barcode
+	mov al, code
 	mov bx, 2
 	mul bx
 	mov si, ax
@@ -37,7 +37,7 @@ get_product macro code
     mov item_price, ax
 	display_word item_price
 	xor ax, ax
-	mov al, barcode
+	mov al, code
 	call get_name_proc
 	
 	popa
@@ -48,10 +48,11 @@ data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
-    barcode db 0Ah
-    item_name dw 0
+    barcode db 0
+    item_name dw 0      ; item's name offset
     item_price dw 0
     test_string db "Teste...$"
+    remaining_letters db 0
     
     ;Estrutura dos dados
     ;IDs           0           1          2
@@ -67,11 +68,11 @@ code segment
     call sys_setup
     
 	; add your code here
-	mov barcode, 2
+	mov barcode, 3
 	
 	get_product barcode
-	printerln products, item_name
-	display_word item_price
+	
+	call printline_proc
 	
 ;	printerln products
 ;	
@@ -161,6 +162,30 @@ printerln_proc:
 		pop dx	
         ret
 
+printer_proc:
+	push dx
+	push cx
+	push ax
+	
+	mov cx, 100		; loop limit
+	
+	print:
+		mov dl, [bx]
+		cmp dl, '$'	; compare to string end
+		je endprint
+		
+		mov ah, 5
+		int 21h		; print interruption
+		
+		inc bx		; get next char
+		loop print
+	
+	endprint:
+		pop ax
+		pop cx
+		pop dx	
+        ret
+
 
 get_name_proc:
     xor si, si
@@ -189,6 +214,22 @@ get_name_proc:
 		mov item_name, si
 	ret
 	
-get_price_proc:
-    mov si, 0
-    
+printline_proc:
+	pusha
+	mov remaining_letters, 16
+	mov si, item_name
+	
+	xor bx, bx
+	mov cx, 0FFh
+	count_letters:
+		cmp products[si+bx], '$'
+		je printa
+		
+		inc bx
+		loop count_letters
+	
+	dec remaining_letters, bx
+	
+	
+	popa
+	ret
