@@ -30,12 +30,7 @@ get_product macro code
 	
 	xor ax, ax
 	mov al, barcode
-	mov bx, 2
-	mul bx
-	mov si, ax
-	mov ax, prices[si]
-    mov item_price, ax
-	display_word item_price
+	call get_price_proc
 	xor ax, ax
 	mov al, barcode
 	call get_name_proc
@@ -43,6 +38,10 @@ get_product macro code
 	popa
 endm
 
+add_total macro 
+	mov ax, item_price
+	add total_price, ax
+endm
 
 data segment
     ; add your data here!
@@ -51,12 +50,13 @@ data segment
     barcode db 0Ah
     item_name dw 0
     item_price dw 0
+    total_price dw 0
     test_string db "Teste...$"
     
     ;Estrutura dos dados
     ;IDs           0           1          2
     products db "ERROR$", "macarrao$", "leite$", "quiboa$"
-    prices   dw 0FFFFh,   350,         399,       299 
+    prices   dw 0FFFFh,   350,         1399,       299 
 ends
 
 stack segment
@@ -67,11 +67,16 @@ code segment
     call sys_setup
     
 	; add your code here
-	mov barcode, 2
 	
-	get_product barcode
+	get_product 2
+	add_total
 	printerln products, item_name
-	display_word item_price
+	display_word total_price
+
+	get_product 3
+    add_total	
+	printerln products, item_name
+	display_word total_price
 	
 ;	printerln products
 ;	
@@ -190,5 +195,10 @@ get_name_proc:
 	ret
 	
 get_price_proc:
-    mov si, 0
+	mov bx, 2
+	mul bx
+	mov si, ax
+	mov ax, prices[si]
+    mov item_price, ax
+    ret
     
