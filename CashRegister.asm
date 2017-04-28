@@ -2,11 +2,12 @@
 #start=LED_Display.exe#
 #start=Printer.exe#
 
-printerln macro str
-    push si
-    mov si, offset str
+printerln macro str, offs
+    push bx
+    mov bx, offset str
+    add bx, offs
     call printerln_proc
-    pop si
+    pop bx
 endm
 
 display_word macro val   ; mostra word no display
@@ -41,7 +42,7 @@ data segment
     string db "print test$"
     pkey db "press any key...$"
     barcode db 0Ah
-    item_name dw 0
+    item_name dw 3
     test_string db "Teste...$"
     
     ;Estrutura dos dados
@@ -58,11 +59,9 @@ code segment
     call sys_setup
     
 	; add your code here
-	mov barcode, 1
-
+	mov barcode, 2
 	get_name barcode
-	
-	printerln produtos[item_name]
+	printerln produtos, item_name
 	
 ;	printerln produtos
 ;	
@@ -132,14 +131,14 @@ printerln_proc:
 	mov cx, 100		; loop limit
 	
 	print:
-		mov dl, [si]
+		mov dl, [bx]
 		cmp dl, '$'	; compare to string end
 		je endprint
 		
 		mov ah, 5
 		int 21h		; print interruption
 		
-		inc si		; get next char
+		inc bx		; get next char
 		loop print
 	
 	endprint:
@@ -176,5 +175,6 @@ get_name_proc:
 	
 	
 	ret_name:
+		inc si
 		mov item_name, si
 	ret
