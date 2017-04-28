@@ -13,6 +13,7 @@ Obs: tenta modularizar o código, deixando funções bonitinhas ao invés de ```
 ### Daqui a pouco
 * Procedures para limpar memória/impressora/display
 * Procedures para pegar produtos/preços pelo ID
+* Procedure para imprimir nome e preço formatados
 ### Depois
 * Pegar e tratar input do DOS
 * Cadastrar produtos
