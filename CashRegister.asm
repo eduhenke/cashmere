@@ -46,7 +46,7 @@ data segment
     test_string db "Teste...$"
     
     ;Estrutura dos dados
-    ;IDs         01h           02h       03h...
+    ;IDs           0           1          2
     produtos db "ERROR$", "macarrao$", "leite$", "quiboa$"
     precos   db 3, 50      , 3, 99   , 2, 99 
 ends
