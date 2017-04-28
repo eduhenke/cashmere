@@ -12,12 +12,12 @@ Obs: tenta modularizar o código, deixando funções bonitinhas ao invés de ```
 * Tratador de interrupção
 * Procedures para limpar memória/impressora/display
 * Procedure para imprimir nome e preço formatados(Alfinete)
-* Calcular total e mostrar na tela a cada get_product(Henke)
 ### Depois
 * Pegar e tratar input do DOS
 * Cadastrar produtos
 ### Feito
 * ~~Mostrar no display(Henke)~~
+* ~~Calcular total e mostrar na tela a cada get_product(Henke)~~
 * ~~Pegar input das chaves(Alfinete)~~
 * ~~Procedures para pegar produtos/preços pelo ID~~
 
