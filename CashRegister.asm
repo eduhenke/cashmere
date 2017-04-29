@@ -40,13 +40,15 @@ code segment
 		printerln header, 0
   	
   		; config int 90h
-		push es
-		mov ax, 0h
-		mov es, ax
-		mov es:[4*90h+1], 0000h
-		mov es:[4*90h], offset reset
-		mov es:[4*90h + 2], cs
-		pop es
+  		mov cx, offset reset
+  		configInt 90h, cx
+;		push es
+;		mov ax, 0h
+;		mov es, ax
+;		mov es:[4*90h+1], 0000h
+;		mov es:[4*90h], offset reset
+;		mov es:[4*90h + 2], cs
+;		pop es
 	
 	
 	main_loop:

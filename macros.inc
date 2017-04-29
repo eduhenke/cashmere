@@ -83,3 +83,17 @@ endm
 printline macro
 	call printline_proc
 endm
+
+configInt macro vector, procedure_offset
+	pusha
+	mov ax, 0
+	mov es, ax
+	mov al, vector
+	mov bl, 4
+	mul bl
+	mov si, ax
+	mov es:[si +1], 0000h
+	mov es:[si], procedure_offset
+	mov es:[si + 2], cs
+	popa
+endm
