@@ -14,6 +14,7 @@ data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
+    dos_intro db "Funcionalidades:",10,13,"'l'-listar produtos",10,13,"'r'-registrar produto",10,13,"'e'-excluir produto$"
     barcode db 2
     item_name dw 0      ; item's name offset
     item_price dw 0
@@ -25,7 +26,8 @@ data segment
     test_string db "Teste...$"
     remaining_letters db 0
     
-    new_product_name db "arroz$"
+    buffer db 10, 10 dup(0)
+    new_product_name db 10 dup(0)
     new_product_price dw 230
     last_product_index db 3
     ;Estrutura dos dados
@@ -39,10 +41,28 @@ stack segment
 ends
 
 code segment
-    call init
+    call init	
+
+    ; output string at ds:dx
+    lea dx, dos_intro
+    mov ah, 9
+    int 21h
     
-    call register_product_proc
-	
+    ; gets string from console
+    lea dx, buffer
+    mov ah, 0Ah
+    int 21h
+    
+    xor ax, ax
+    mov bx, offset buffer ; buffer first byte tells its size, second byte how many chars read
+    add bx, 2
+    mov al, [bx]          ; ax = chars read
+    mov cx, a             ; will loop ax times
+    xor si, si
+    call loop_reg_name_proc
+    call register_product_proc ; usa new_product_name e new_product_price
+    
+    
 	get_product barcode
 	add_total
 	printline
@@ -102,5 +122,22 @@ register_product_proc:
     mov prices[bx], ax
     popa
     ret
+
+loop_reg_name_proc:
+    mov ax, [bx+si]
+    mov new_product_name[si], al
+    inc si
+    loop loop_reg_name_proc
+    mov new_product_name[si], "$"
+    ret
+    
+clear_reg_name_proc:
+    mov al, new_product_name[si]
+    mov new_product_name[si], 0
+    inc si
+    cmp al, "$"
+    jne clear_reg_name_proc
+    ret
+    
 include "procedures.inc"
 

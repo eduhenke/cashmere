@@ -32,14 +32,6 @@ barcode_read:
 
 
 sys_exit: ;exit to operating system.
-  lea dx, pkey
-  mov ah, 9
-  int 21h        ; output string at ds:dx
-
-  ; wait for any key....
-  mov ah, 1
-  int 21h
-
 	mov ax, 4c00h
   int 21h
 
