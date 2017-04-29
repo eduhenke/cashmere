@@ -135,6 +135,15 @@ toString_proc:		; convert AX to string @ item_price_string
 	mov bx, 10
 	mov cx, 5
 	
+	cleanVars:
+		mov si, cx
+		dec si
+		mov item_price_string[si], ' '
+		
+		loop cleanVars
+	
+	mov cx, 5
+	
 	convert:
 		div bx
 		
@@ -179,7 +188,7 @@ printline_proc:
 		loop count_letters
 	
 	printa:
-		dec remaining_letters, bx
+		sub remaining_letters, bl
 		printer products, item_name
 	
 	xor cx, cx

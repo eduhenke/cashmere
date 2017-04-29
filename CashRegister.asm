@@ -32,24 +32,16 @@ ends
 code segment
     call init
 
-	; add your code here
-	printer_char 12
 	
-	get_product barcode
-	
-	printline
-	
-	
-	mov barcode, 2
 	get_product barcode
 	add_total
-	printerln products, item_name
+	printline
 	display_word total_price
-
+	
 	mov barcode, 3
 	get_product barcode
-    add_total
-	printerln products, item_name
+	add_total
+	printline
 	display_word total_price
 
 
