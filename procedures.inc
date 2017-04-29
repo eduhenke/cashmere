@@ -1,6 +1,7 @@
 init:
-  call sys_setup
   clear_display
+  clear_printer
+  call sys_setup
   ret
 
 sys_setup: ;set segment registers:

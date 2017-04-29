@@ -94,7 +94,7 @@ data segment
     ;Estrutura dos dados
     ;IDs           0           1          2
     products db "ERROR$", "macarrao$", "leite$", "quiboa$"
-    prices   dw 0FFFFh,   350,         1399,       299 
+    prices   dw 0FFFFh,   350,         1399,       299
 ends
 
 stack segment
@@ -102,8 +102,8 @@ stack segment
 ends
 
 code segment
-    call sys_setup
-    
+    call init
+
 	; add your code here
 	printer_char 12
 	
@@ -120,12 +120,13 @@ code segment
 
 	mov barcode, 3
 	get_product barcode
-    add_total	
+    add_total
 	printerln products, item_name
 	display_word total_price
 
-    jmp sys_exit   
+
+    jmp sys_exit
 ends
 
-
 include "procedures.inc"
+
