@@ -6,6 +6,11 @@ printerln macro str, offs
     pop bx
 endm
 
+clear_display macro
+  mov ax, 0
+  out 199, ax
+endm
+
 display_word macro val   ; mostra word no display
     push ax
     mov ax, val
@@ -23,18 +28,18 @@ endm
 
 get_product macro code
 	pusha
-	
+
 	xor ax, ax
 	mov al, barcode
 	call get_price_proc
 	xor ax, ax
 	mov al, barcode
 	call get_name_proc
-	
+
 	popa
 endm
 
-add_total macro 
+add_total macro
 	mov ax, item_price
 	add total_price, ax
 endm
