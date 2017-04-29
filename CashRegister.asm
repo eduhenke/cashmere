@@ -8,7 +8,7 @@ data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
-    barcode db 2
+    barcode db 0
     item_name dw 0      ; item's name offset
     item_price dw 0
     item_price_string db "     "
@@ -40,15 +40,17 @@ code segment
 		printerln header, 0
   	
   		; config int 90h
+  		push cx
+  		
   		mov cx, offset reset
   		configInt 90h, cx
-;		push es
-;		mov ax, 0h
-;		mov es, ax
-;		mov es:[4*90h+1], 0000h
-;		mov es:[4*90h], offset reset
-;		mov es:[4*90h + 2], cs
-;		pop es
+		mov cx, offset barcode_read
+		configInt 91h, cx
+		
+		pop cx
+		
+		sti		; Since reset doesn't IRET
+	
 	
 	
 	main_loop:

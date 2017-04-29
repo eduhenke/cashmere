@@ -8,8 +8,7 @@ sys_setup:
 ; end sys_setup
 
 reset:
-	sti
-	jmp init
+	jmp init	
   
 barcode_read:
 	push ax
