@@ -15,10 +15,21 @@ barcode_read:
 
 	in al, 20h
 	mov barcode, al
+	
+	get_product barcode
+	
+	add_total
+	
+	display_word total_price
+	
+	printline
 
 	pop ax
 	iret
 
+finish:
+	printtotal
+	iret
 
 sys_exit: ;exit to operating system.
   lea dx, pkey
@@ -127,7 +138,7 @@ toString_proc:		; convert AX to string @ item_price_string
 	cleanVars:
 		mov si, cx
 		dec si
-		mov item_price_string[si], ' '
+		mov price_string[si], ' '
 		
 		loop cleanVars
 	
@@ -139,7 +150,7 @@ toString_proc:		; convert AX to string @ item_price_string
 		add dx, '0'
 		mov si, cx
 		dec si
-		mov item_price_string[si], dl
+		mov price_string[si], dl
 		
 		xor dx, dx
 		
@@ -149,16 +160,16 @@ toString_proc:		; convert AX to string @ item_price_string
 		loop convert
 	break:
 	
-	mov al, item_price_string[0]
-	mov item_price_r[0], al
-	mov al, item_price_string[1]
-	mov item_price_r[1], al
-	mov al, item_price_string[2]
-	mov item_price_r[2], al
-	mov al, item_price_string[3]
-	mov item_price_c[0], al
-	mov al, item_price_string[4]
-	mov item_price_c[1], al
+	mov al, price_string[0]
+	mov price_r[0], al
+	mov al, price_string[1]
+	mov price_r[1], al
+	mov al, price_string[2]
+	mov price_r[2], al
+	mov al, price_string[3]
+	mov price_c[0], al
+	mov al, price_string[4]
+	mov price_c[1], al
 	
 	ret
 	
@@ -198,11 +209,54 @@ printline_proc:
 	
 	toString item_price
 	
-	printer item_price_r, 0
+	printer price_r, 0
 	
 	printer_char '.'
 	
-	printerln item_price_c, 0
+	printerln price_c, 0
+		
+	popa
+	ret
+	
+printtotal_proc:
+	pusha
+	mov remaining_letters, 16
+	
+	xor bx, bx
+	mov cx, 0FFh
+	t_count_letters:
+		cmp total[bx], '$'
+		je t_printa
+		
+		inc bx
+		loop t_count_letters
+	
+	t_printa:
+		sub remaining_letters, bl
+		printer total, 0
+	
+	xor cx, cx
+	mov cl, remaining_letters
+	sub cx, 5	; number of chars for price
+	
+	
+	push ax
+	push dx
+	t_print_spaces:
+		mov ah, 5
+		mov dl, ' '
+		int 21h
+		loop t_print_spaces
+	pop dx
+	pop ax
+	
+	toString total_price
+	
+	printer price_r, 0
+	
+	printer_char '.'
+	
+	printerln price_c, 0
 		
 	popa
 	ret

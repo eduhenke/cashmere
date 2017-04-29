@@ -84,6 +84,10 @@ printline macro
 	call printline_proc
 endm
 
+printtotal macro
+	call printtotal_proc
+endm
+
 configInt macro vector, procedure_offset
 	pusha
 	mov ax, 0

@@ -11,14 +11,15 @@ data segment
     barcode db 0
     item_name dw 0      ; item's name offset
     item_price dw 0
-    item_price_string db "     "
-    item_price_r db "   $"  ; item price in reais
-    item_price_c db "  $"	; itme price in centavos
+    price_string db "     "
+    price_r db "   $"  ; item price in reais
+    price_c db "  $"	; itme price in centavos
 
     total_price dw 0
     test_string db "Teste...$"
     remaining_letters db 0
     header db " SEJA BEM VINDO $"
+    total db "total$"
     
     ;Estrutura dos dados
     ;IDs           0           1          2
@@ -46,6 +47,8 @@ code segment
   		configInt 90h, cx
 		mov cx, offset barcode_read
 		configInt 91h, cx
+		mov cx, offset finish
+		configInt 92h, cx
 		
 		pop cx
 		
