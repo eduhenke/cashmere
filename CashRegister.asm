@@ -18,6 +18,7 @@ data segment
     total_price dw 0
     test_string db "Teste...$"
     remaining_letters db 0
+    header db " SEJA BEM VINDO $"
     
     ;Estrutura dos dados
     ;IDs           0           1          2
@@ -30,20 +31,29 @@ stack segment
 ends
 
 code segment
-    call init
-
+    call sys_setup
+    
+    init:
+		clear_printer
+		clear_display
+		
+		printerln header, 0
+  	
+  		; config int 90h
+		push es
+		mov ax, 0h
+		mov es, ax
+		mov es:[4*90h+1], 0000h
+		mov es:[4*90h], offset reset
+		mov es:[4*90h + 2], cs
+		pop es
 	
-	get_product barcode
-	add_total
-	printline
-	display_word total_price
 	
-	mov barcode, 3
-	get_product barcode
-	add_total
-	printline
-	display_word total_price
+	main_loop:
+		mov cx, 2
+		loop main_loop
 
+	;
 
     jmp sys_exit
 ends

@@ -1,26 +1,16 @@
-init:
-  clear_display
-  clear_printer
-  call sys_setup
-  ret
-
-sys_setup: ;set segment registers:
-  mov ax, data
-  mov ds, ax
-  mov es, ax
-
-	; config int 90h
-  push es
-  mov ax, 0h
-  mov es, ax
-  mov es:[4*90h+1], 0000h
-	mov es:[4*90h], offset barcode_read
-	mov es:[4*90h + 2], cs
-	pop es
+sys_setup: 
+	;set segment registers:
+	mov ax, data
+	mov ds, ax
+	mov es, ax
 
     ret
 ; end sys_setup
 
+reset:
+	sti
+	jmp init
+  
 barcode_read:
 	push ax
 
