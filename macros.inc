@@ -7,8 +7,17 @@ printerln macro str, offs
 endm
 
 clear_display macro
+  push ax
   mov ax, 0
   out 199, ax
+  pop ax
+endm
+
+clear_printer macro
+  push ax
+  mov ax, 12
+  out 130, ax
+  pop ax
 endm
 
 display_word macro val   ; mostra word no display
