@@ -188,7 +188,7 @@ printline_proc:
 		loop count_letters
 	
 	printa:
-		dec remaining_letters, bx
+		sub remaining_letters, bl
 		printer products, item_name
 	
 	xor cx, cx
