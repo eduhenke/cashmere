@@ -6,6 +6,24 @@ printerln macro str, offs
     pop bx
 endm
 
+printer macro str, offs
+	push bx
+	mov bx, offset str
+	add bx, offs
+	call printer_proc
+	pop bx
+endm
+
+printer_char macro char
+	pusha
+	
+	mov ah, 5
+	mov dl, char
+	int 21h
+	
+	popa
+endm
+
 clear_display macro
   push ax
   mov ax, 0
@@ -51,4 +69,17 @@ endm
 add_total macro
 	mov ax, item_price
 	add total_price, ax
+endm
+
+toString macro price
+	pusha
+	
+	mov ax, price
+	call toString_proc
+	
+	popa
+endm
+
+printline macro
+	call printline_proc
 endm
