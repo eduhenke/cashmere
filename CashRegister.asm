@@ -10,6 +10,24 @@ printerln macro str, offs
     pop bx
 endm
 
+printer macro str, offs
+	push bx
+	mov bx, offset str
+	add bx, offs
+	call printer_proc
+	pop bx
+endm
+
+printer_char macro char
+	pusha
+	
+	mov ah, 5
+	mov dl, char
+	int 21h
+	
+	popa
+endm
+
 display_word macro val   ; mostra word no display
     push ax
     mov ax, val
@@ -43,14 +61,30 @@ get_product macro code
 	popa
 endm
 
+toString macro price
+	pusha
+	
+	mov ax, price
+	call toString_proc
+	
+	popa
+endm
+
+printline macro
+	call printline_proc
+endm
+
 
 data segment
     ; add your data here!
     string db "print test$"
     pkey db "press any key...$"
-    barcode db 0
+    barcode db 2
     item_name dw 0      ; item's name offset
     item_price dw 0
+    item_price_string db "     "
+    item_price_r db "   $"  ; item price in reais
+    item_price_c db "  $"	; itme price in centavos
     test_string db "Teste...$"
     remaining_letters db 0
     
@@ -68,29 +102,13 @@ code segment
     call sys_setup
     
 	; add your code here
-	mov barcode, 3
+	printer_char 12
 	
 	get_product barcode
 	
-	call printline_proc
+	printline
 	
-;	printerln products
-;	
-;    display_byte 200
-;    printerln test_string
-;	
-;	; int 90h test
-;	mov cx, 2
-;    lop:
-;    	inc cx
-;    	display_byte barcode
-;    	loop lop
-;	
-;    ; print test
-;    printerln string
-;    printerln pkey
-    
-    ; end code
+	
 
     jmp sys_exit   
 ends
@@ -141,18 +159,18 @@ printerln_proc:
 	
 	mov cx, 100		; loop limit
 	
-	print:
+	println:
 		mov dl, [bx]
 		cmp dl, '$'	; compare to string end
-		je endprint
+		je endprintln
 		
 		mov ah, 5
 		int 21h		; print interruption
 		
 		inc bx		; get next char
-		loop print
+		loop println
 	
-	endprint:
+	endprintln:
 		mov dl, 10	; new line
 		mov ah, 5
 		int 21h
@@ -214,6 +232,39 @@ get_name_proc:
 		mov item_name, si
 	ret
 	
+toString_proc:		; convert AX to string @ item_price_string
+	mov bx, 10
+	mov cx, 5
+	
+	convert:
+		div bx
+		
+		add dx, '0'
+		mov si, cx
+		dec si
+		mov item_price_string[si], dl
+		
+		xor dx, dx
+		
+		cmp ax, 0
+		je break
+		
+		loop convert
+	break:
+	
+	mov al, item_price_string[0]
+	mov item_price_r[0], al
+	mov al, item_price_string[1]
+	mov item_price_r[1], al
+	mov al, item_price_string[2]
+	mov item_price_r[2], al
+	mov al, item_price_string[3]
+	mov item_price_c[0], al
+	mov al, item_price_string[4]
+	mov item_price_c[1], al
+	
+	ret
+	
 printline_proc:
 	pusha
 	mov remaining_letters, 16
@@ -228,8 +279,33 @@ printline_proc:
 		inc bx
 		loop count_letters
 	
-	dec remaining_letters, bx
+	printa:
+		dec remaining_letters, bx
+		printer products, item_name
+	
+	xor cx, cx
+	mov cl, remaining_letters
+	sub cx, 5	; number of chars for price
 	
 	
+	push ax
+	push dx
+	print_spaces:
+		mov ah, 5
+		mov dl, ' '
+		int 21h
+		
+		loop print_spaces
+	pop dx
+	pop ax
+	
+	toString item_price
+	
+	printer item_price_r, 0
+	
+	printer_char '.'
+	
+	printerln item_price_c, 0
+		
 	popa
 	ret
