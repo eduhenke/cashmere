@@ -41,14 +41,6 @@ do_nothing:
 	iret
 
 sys_exit: ;exit to operating system.
-  lea dx, pkey
-  mov ah, 9
-  int 21h        ; output string at ds:dx
-
-  ; wait for any key....
-  mov ah, 1
-  int 21h
-
 	mov ax, 4c00h
   int 21h
 
@@ -56,54 +48,54 @@ printerln_proc:
 	push dx
 	push cx
 	push ax
-	
+
 	mov cx, 100		; loop limit
-	
+
 	println:
 		mov dl, [bx]
 		cmp dl, '$'	; compare to string end
 		je endprintln
-		
+
 		mov ah, 5
 		int 21h		; print interruption
-		
+
 		inc bx		; get next char
 		loop println
-	
+
 	endprintln:
 		mov dl, 10	; new line
 		mov ah, 5
 		int 21h
-		
+
 		pop ax
 		pop cx
-		pop dx	
+		pop dx
     ret
 
 printer_proc:
 	push dx
 	push cx
 	push ax
-	
+
 	mov cx, 100		; loop limit
-	
+
 	print:
 		mov dl, [bx]
 		cmp dl, '$'	; compare to string end
 		je endprint
-		
+
 		mov ah, 5
 		int 21h		; print interruption
-		
+
 		inc bx		; get next char
 		loop print
-	
+
 	endprint:
 		pop ax
 		pop cx
-		pop dx	
+		pop dx
         ret
-		
+
 get_name_proc:
   xor si, si
 	xor bx, bx
@@ -141,31 +133,31 @@ get_price_proc:
 
 
 toString_proc:		; convert AX to string @ item_price_string
-	mov bx, 10
 	mov cx, 5
-	
+  xor dx, dx
+  cwd
 	cleanVars:
 		mov si, cx
 		dec si
 		mov price_string[si], ' '
 		
 		loop cleanVars
-	
+
 	mov cx, 5
-	
+
 	convert:
-		div bx
-		
+		div ten
+
 		add dx, '0'
 		mov si, cx
 		dec si
 		mov price_string[si], dl
 		
 		xor dx, dx
-		
+
 		cmp ax, 0
 		je break
-		
+
 		loop convert
 	break:
 	
@@ -181,25 +173,25 @@ toString_proc:		; convert AX to string @ item_price_string
 	mov price_c[1], al
 	
 	ret
-	
+
 printline_proc:
 	pusha
 	mov remaining_letters, 16
 	mov si, item_name
-	
+
 	xor bx, bx
 	mov cx, 0FFh
 	count_letters:
 		cmp products[si+bx], '$'
 		je printa
-		
+
 		inc bx
 		loop count_letters
-	
+
 	printa:
 		sub remaining_letters, bl
 		printer products, item_name
-	
+
 	xor cx, cx
 	mov cl, remaining_letters
 	sub cx, 6	; number of chars for price + '.'
@@ -211,11 +203,11 @@ printline_proc:
 		mov ah, 5
 		mov dl, ' '
 		int 21h
-		
+
 		loop print_spaces
 	pop dx
 	pop ax
-	
+
 	toString item_price
 	
 	printer price_r, 0
@@ -269,3 +261,92 @@ printtotal_proc:
 		
 	popa
 	ret
+  get_name_position_proc:
+      xor bx, bx
+      xor ax, ax
+      mov dx, si
+      xor si, si
+      search_name_pos:
+      mov al, products[si]
+      cmp ax, "$"
+      jne continue_name
+      inc bx
+      cmp bx, dx
+      je ret_si
+      continue_name:
+          inc si
+          jmp search_name_pos
+      ret_si:
+          inc si
+          ret
+
+  register_product_proc:
+      pusha
+      inc last_product_index
+      xor ax, ax
+      mov al, last_product_index
+      get_name_position ax, si
+      xor bx, bx
+      xor ax, ax
+      write_name_rp:
+          mov al, new_product_name[bx]
+          inc bx
+          mov products[si], al
+          inc si
+          cmp al, "$"
+          jne write_name_rp
+      ; add price
+      xor ax, ax
+      mov al, last_product_index
+      mov si, ax
+      mov ax, new_product_price
+      mov bx, si
+      add bx, si
+      mov prices[bx], ax
+      popa
+      ret
+
+  buffer_to_name_proc:
+      call set_buffer_registers_proc
+      loop_reg_name:
+          mov al, [bx+si+1]   ; +1 to ignore second byte
+          mov new_product_name[si], al
+          inc si
+          loop loop_reg_name
+          mov new_product_name[si], "$"
+      ret
+
+  set_buffer_registers_proc:
+      lea dx, buffer
+      mov ah, 0Ah
+      int 21h
+      xor ax, ax
+      lea bx, buffer         ; buffer first byte tells its size, second byte how many chars read
+      add bx, 1              ; buffer second byte
+      mov al, [bx]           ; ax = number of chars read
+      mov cx, ax             ; will loop ax times
+      xor si, si
+      xor ax, ax
+      ret
+
+  clear_reg_name_proc:
+      mov al, new_product_name[si]
+      mov new_product_name[si], 0
+      inc si
+      cmp al, "$"
+      jne clear_reg_name_proc
+      ret
+
+  buffer_to_price_proc:
+      call set_buffer_registers_proc
+      loop_int:
+          xor dx, dx
+          mov dl, [bx+si+1]   ; +1 to ignore second byte
+          sub dl, "0"
+          add ax, dx
+          inc si
+          mul ten
+          loop loop_int
+      div ten
+      mov new_product_price, ax
+      ret
