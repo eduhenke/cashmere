@@ -124,9 +124,9 @@ get_price_proc:
 
 
 toString_proc:		; convert AX to string @ item_price_string
-	mov bx, 10
 	mov cx, 5
-
+  xor dx, dx
+  cwd
 	cleanVars:
 		mov si, cx
 		dec si
@@ -137,7 +137,7 @@ toString_proc:		; convert AX to string @ item_price_string
 	mov cx, 5
 
 	convert:
-		div bx
+		div ten
 
 		add dx, '0'
 		mov si, cx
@@ -209,3 +209,92 @@ printline_proc:
 
 	popa
 	ret
+  get_name_position_proc:
+      xor bx, bx
+      xor ax, ax
+      mov dx, si
+      xor si, si
+      search_name_pos:
+      mov al, products[si]
+      cmp ax, "$"
+      jne continue_name
+      inc bx
+      cmp bx, dx
+      je ret_si
+      continue_name:
+          inc si
+          jmp search_name_pos
+      ret_si:
+          inc si
+          ret
+
+  register_product_proc:
+      pusha
+      inc last_product_index
+      xor ax, ax
+      mov al, last_product_index
+      get_name_position ax, si
+      xor bx, bx
+      xor ax, ax
+      write_name_rp:
+          mov al, new_product_name[bx]
+          inc bx
+          mov products[si], al
+          inc si
+          cmp al, "$"
+          jne write_name_rp
+      ; add price
+      xor ax, ax
+      mov al, last_product_index
+      mov si, ax
+      mov ax, new_product_price
+      mov bx, si
+      add bx, si
+      mov prices[bx], ax
+      popa
+      ret
+
+  buffer_to_name_proc:
+      call set_buffer_registers_proc
+      loop_reg_name:
+          mov al, [bx+si+1]   ; +1 to ignore second byte
+          mov new_product_name[si], al
+          inc si
+          loop loop_reg_name
+          mov new_product_name[si], "$"
+      ret
+
+  set_buffer_registers_proc:
+      lea dx, buffer
+      mov ah, 0Ah
+      int 21h
+      xor ax, ax
+      lea bx, buffer         ; buffer first byte tells its size, second byte how many chars read
+      add bx, 1              ; buffer second byte
+      mov al, [bx]           ; ax = number of chars read
+      mov cx, ax             ; will loop ax times
+      xor si, si
+      xor ax, ax
+      ret
+
+  clear_reg_name_proc:
+      mov al, new_product_name[si]
+      mov new_product_name[si], 0
+      inc si
+      cmp al, "$"
+      jne clear_reg_name_proc
+      ret
+
+  buffer_to_price_proc:
+      call set_buffer_registers_proc
+      loop_int:
+          xor dx, dx
+          mov dl, [bx+si+1]   ; +1 to ignore second byte
+          sub dl, "0"
+          add ax, dx
+          inc si
+          mul ten
+          loop loop_int
+      div ten
+      mov new_product_price, ax
+      ret

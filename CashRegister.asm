@@ -26,6 +26,7 @@ data segment
     test_string db "Teste...$"
     remaining_letters db 0
     
+    ten db 10
     buffer db 10, 10 dup(0)
     new_product_name db 10 dup(0)
     new_product_price dw 230
@@ -49,17 +50,8 @@ code segment
     int 21h
     
     ; gets string from console
-    lea dx, buffer
-    mov ah, 0Ah
-    int 21h
-    
-    xor ax, ax
-    mov bx, offset buffer ; buffer first byte tells its size, second byte how many chars read
-    add bx, 2
-    mov al, [bx]          ; ax = chars read
-    mov cx, a             ; will loop ax times
-    xor si, si
-    call loop_reg_name_proc
+    call buffer_to_name_proc
+    ;call toInt_proc
     call register_product_proc ; usa new_product_name e new_product_price
     
     
@@ -122,15 +114,29 @@ register_product_proc:
     mov prices[bx], ax
     popa
     ret
-
-loop_reg_name_proc:
-    mov ax, [bx+si]
-    mov new_product_name[si], al
-    inc si
-    loop loop_reg_name_proc
-    mov new_product_name[si], "$"
-    ret
     
+buffer_to_name_proc:
+    call set_buffer_registers_proc
+    loop_reg_name:
+        mov al, [bx+si+1]   ; +1 to ignore second byte
+        mov new_product_name[si], al
+        inc si
+        loop loop_reg_name
+        mov new_product_name[si], "$"
+    ret
+
+set_buffer_registers_proc:
+    lea dx, buffer
+    mov ah, 0Ah
+    int 21h
+    xor ax, ax
+    lea bx, buffer         ; buffer first byte tells its size, second byte how many chars read
+    add bx, 1              ; buffer second byte
+    mov al, [bx]           ; ax = number of chars read
+    mov cx, ax             ; will loop ax times
+    xor si, si
+    ret
+
 clear_reg_name_proc:
     mov al, new_product_name[si]
     mov new_product_name[si], 0
@@ -138,6 +144,15 @@ clear_reg_name_proc:
     cmp al, "$"
     jne clear_reg_name_proc
     ret
+
+toInt_proc:
+    call set_buffer_registers_proc
+    loop_int:
+        add al, [bx+si+1]   ; +1 to ignore second byte
+        sub al, "0"
+        mul ten
+    mov new_product_price, ax
+    ret
+        
     
 include "procedures.inc"
-

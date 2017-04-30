@@ -1,3 +1,36 @@
+get_name_position macro index, mem_pos
+    mov si, index
+    call get_name_position_proc
+    mov mem_pos, si
+endm
+
+register_product macro
+    ; output string at ds:dx
+    lea dx, dos_product_name
+    mov ah, 9
+    int 21h
+
+    ; gets string from console
+    call buffer_to_name_proc
+
+
+    lea dx, new_line
+    mov ah, 9
+    int 21h
+
+    lea dx, dos_product_price
+    mov ah, 9
+    int 21h
+
+    call buffer_to_price_proc
+
+    lea dx, new_line
+    mov ah, 9
+    int 21h
+
+    call register_product_proc ; usa new_product_name e new_product_price
+endm
+
 printerln macro str, offs
     push bx
     mov bx, offset str
@@ -16,11 +49,11 @@ endm
 
 printer_char macro char
 	pusha
-	
+
 	mov ah, 5
 	mov dl, char
 	int 21h
-	
+
 	popa
 endm
 
@@ -73,10 +106,10 @@ endm
 
 toString macro price
 	pusha
-	
+
 	mov ax, price
 	call toString_proc
-	
+
 	popa
 endm
 
