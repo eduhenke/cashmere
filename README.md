@@ -10,11 +10,11 @@ Nathan Willian  D. S.
 ## O que falta fazer:
 Obs: tenta modularizar o código, deixando funções bonitinhas ao invés de ```n``` linhas de código pra uma função básica
 ### Agora
-* Tratador de interrupção, painel das LEDs(Alfinete)
-* Main loop e integração(Alfinete)
 * Pegar e tratar input do DOS(Henke)
 * Proc pra registrar produtos(Henke)
 ### Feito
+* ~~Tratador de interrupção, painel das LEDs(Alfinete)~~
+* ~~Main loop e integração(Alfinete)~~
 * ~~Procedure para imprimir nome e preço formatados(Alfinete)~~
 * ~~Procedures para limpar impressora/display~~
 * ~~Mostrar no display(Henke)~~
