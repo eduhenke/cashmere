@@ -29,6 +29,15 @@ barcode_read:
 
 finish:
 	printtotal
+	push cx
+	mov cx, offset do_nothing
+	configInt 91h, cx
+	mov cx, offset do_nothing
+	configInt 92h, cx
+	pop cx
+	iret
+
+do_nothing:
 	iret
 
 sys_exit: ;exit to operating system.
@@ -193,7 +202,7 @@ printline_proc:
 	
 	xor cx, cx
 	mov cl, remaining_letters
-	sub cx, 5	; number of chars for price
+	sub cx, 6	; number of chars for price + '.'
 	
 	
 	push ax
@@ -237,7 +246,7 @@ printtotal_proc:
 	
 	xor cx, cx
 	mov cl, remaining_letters
-	sub cx, 5	; number of chars for price
+	sub cx, 6	; number of chars for price + '.'
 	
 	
 	push ax
