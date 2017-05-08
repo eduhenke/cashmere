@@ -1,26 +1,26 @@
 ; multi-segment executable file template.
-#start=LED_Display.exe#
+#start=LED_Display.exe#                   ;Inicia os devices
 #start=Printer.exe#
 #start=BLU3302.exe#
 
-include "macros.inc"
+include "macros.inc"                       ;Adiciona os aiquivos externos.inc
 
 data segment
     include "data.inc"
 ends
 
-stack segment
+stack segment                               ; Seleciona um espaco na memoria para Stack
     dw   128  dup(0)
 ends
 
 code segment
     call sys_setup
     init:
-        clear_printer
+        clear_printer                       ;Limpa impressora e o display
         clear_display
         printerln header, 0
         
-        ; sets interruptions
+                                            ; Configura as interrupções
         push cx        
         mov cx, offset reset
         configInt 90h, cx
@@ -36,7 +36,7 @@ code segment
     register_product
     
     
-    mov barcode, 4
+    mov barcode, 4                  ;Procedimentos que esperam a adicao de um produto e prepara a impressora
     get_product barcode
     add_total
     display_word total_price
