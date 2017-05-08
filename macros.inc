@@ -1,29 +1,29 @@
-get_name_position macro index, mem_pos
-    mov si, index
+get_name_position macro index, mem_pos ; a partir de um indice(ID), retorna a posicao na memoria
+    mov si, index                      ; do nome do produto
     call get_name_position_proc
     mov mem_pos, si
 endm
 
 register_product macro
-    ; output string at ds:dx
+    ; printa no console
     lea dx, dos_product_name
     mov ah, 9
     int 21h
-
-    ; gets string from console
+    ; copia o que foi lido no console para new_product_name
     call buffer_to_name_proc
 
-
+    ; printa no console
     lea dx, new_line
     mov ah, 9
     int 21h
-
     lea dx, dos_product_price
     mov ah, 9
     int 21h
 
+    ; copia o que foi lido no console para new_product_price
     call buffer_to_price_proc
 
+    ; printa no console
     lea dx, new_line
     mov ah, 9
     int 21h
@@ -57,7 +57,7 @@ printer_char macro char
 	popa
 endm
 
-clear_display macro
+clear_display macro ; limpa o display de precos
   push ax
   mov ax, 0
   out 199, ax
@@ -86,8 +86,9 @@ display_byte macro val   ; mostra byte/char no display
     pop ax
 endm
 
-get_product macro code
-	pusha
+get_product macro code ; setta item_name e item_price para onde comeca o nome do produto na memoria
+                       ; e o preco do produto cujo ID eh o barcode
+  pusha
 
 	xor ax, ax
 	mov al, barcode
@@ -99,7 +100,7 @@ get_product macro code
 	popa
 endm
 
-add_total macro
+add_total macro ; incrementa total_price com item_price
 	mov ax, item_price
 	add total_price, ax
 endm
