@@ -20,7 +20,7 @@ code segment
         clear_display
         printerln header, 0
         
-        ; config int 90h
+        ; sets interruptions
         push cx        
         mov cx, offset reset
         configInt 90h, cx
@@ -29,6 +29,7 @@ code segment
         mov cx, offset finish
         configInt 92h, cx
         pop cx 
+        
         sti    ; Since reset doesn't IRET 
    
 
