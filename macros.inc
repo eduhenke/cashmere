@@ -31,7 +31,7 @@ register_product macro
     call register_product_proc ; usa new_product_name e new_product_price
 endm
 
-printerln macro str, offs
+printerln macro str, offs	; imprime uma string baseado em um offset 'offs'
     push bx
     mov bx, offset str
     add bx, offs
@@ -39,7 +39,7 @@ printerln macro str, offs
     pop bx
 endm
 
-printer macro str, offs
+printer macro str, offs		; similar à printerln mas sem a nova linha ao final
 	push bx
 	mov bx, offset str
 	add bx, offs
@@ -47,12 +47,12 @@ printer macro str, offs
 	pop bx
 endm
 
-printer_char macro char
+printer_char macro char		; imprime somente um caractere na impressora
 	pusha
 
 	mov ah, 5
 	mov dl, char
-	int 21h
+	int 21h		; interrupção da impressora
 
 	popa
 endm
@@ -64,7 +64,7 @@ clear_display macro ; limpa o display de precos
   pop ax
 endm
 
-clear_printer macro
+clear_printer macro ; limpa a impressora através do caractere 12
   push ax
   mov ax, 12
   out 130, ax
@@ -105,7 +105,7 @@ add_total macro ; incrementa total_price com item_price
 	add total_price, ax
 endm
 
-toString macro price
+toString macro price ; converte price para string
 	pusha
 
 	mov ax, price
@@ -122,7 +122,7 @@ printtotal macro
 	call printtotal_proc
 endm
 
-configInt macro vector, procedure_offset
+configInt macro vector, procedure_offset ; configura interrupção de forma genérica
 	pusha
 	mov ax, 0
 	mov es, ax
