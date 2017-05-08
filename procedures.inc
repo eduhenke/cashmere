@@ -1,5 +1,5 @@
 sys_setup:
-	;set segment registers:
+	; determina os registradores de segmento
 	mov ax, data
 	mov ds, ax
 	mov es, ax
@@ -13,9 +13,11 @@ reset:
 barcode_read:
 	push ax
 
+	; pega os valores do painel BLU_3302
 	in al, 20h
 	mov barcode, al
 
+	; rotina para atualizar a nota impressa
 	get_product barcode
 
 	add_total
@@ -40,7 +42,7 @@ finish:
 do_nothing:
 	iret
 
-sys_exit: ;exit to operating system.
+sys_exit: ; retorna para o sistema operacional
 	mov ax, 4c00h
   int 21h
 
@@ -49,21 +51,21 @@ printerln_proc:
 	push cx
 	push ax
 
-	mov cx, 100		; loop limit
+	mov cx, 100		; limite do loop
 
 	println:
 		mov dl, [bx]
-		cmp dl, '$'	; compare to string end
+		cmp dl, '$'	; caractere '$' indica final da string
 		je endprintln
 
 		mov ah, 5
-		int 21h		; print interruption
+		int 21h		; interrupção que imprime
 
-		inc bx		; get next char
+		inc bx		; pega próximo char
 		loop println
 
 	endprintln:
-		mov dl, 10	; new line
+		mov dl, 10	; nova linha
 		mov ah, 5
 		int 21h
 
@@ -77,17 +79,17 @@ printer_proc:
 	push cx
 	push ax
 
-	mov cx, 100		; loop limit
+	mov cx, 100		
 
 	print:
 		mov dl, [bx]
-		cmp dl, '$'	; compare to string end
+		cmp dl, '$'	
 		je endprint
 
 		mov ah, 5
-		int 21h		; print interruption
+		int 21h		
 
-		inc bx		; get next char
+		inc bx		
 		loop print
 
 	endprint:
@@ -104,7 +106,7 @@ get_name_proc:
 
 	mov cx, 100
 
-	search_name:
+	search_name:	; conta '$' no vetor de nomes de produtos para encontrar o produto de acordo com o índice
 		cmp products[si], "$"
 		jne continue
 
@@ -123,7 +125,7 @@ get_name_proc:
 		mov item_name, si
 	ret
 
-get_price_proc: ; retorna o preco do produto cujo ID eh ax
+get_price_proc: ; retorna o preco do produto cujo ID é ax
 	mov bx, 2
 	mul bx
 	mov si, ax
@@ -132,11 +134,11 @@ get_price_proc: ; retorna o preco do produto cujo ID eh ax
   ret
 
 
-toString_proc:		; convert AX to string @ item_price_string
+toString_proc:		; converte AX para string em price_string
 	mov cx, 5
   xor dx, dx
   cwd
-	cleanVars:
+	cleanVars:	; limpa valores anteriores
 		mov si, cx
 		dec si
 		mov price_string[si], ' '
@@ -145,7 +147,7 @@ toString_proc:		; convert AX to string @ item_price_string
 
 	mov cx, 5
 
-	convert:
+	convert:	; converte de inteiro para string através de divisões por 10 e utilizando o resto da divisão
 		div ten
 
 		add dx, '0'
@@ -161,6 +163,7 @@ toString_proc:		; convert AX to string @ item_price_string
 		loop convert
 	break:
 
+	; move de price_string para price_r e price_c para se ter controle dos caracteres
 	mov al, price_string[0]
 	mov price_r[0], al
 	mov al, price_string[1]
@@ -174,14 +177,14 @@ toString_proc:		; convert AX to string @ item_price_string
 
 	ret
 
-printline_proc:
+printline_proc:		; procedimento de imprimir a linha na nota com nome e preço do produto
 	pusha
-	mov remaining_letters, 16
+	mov remaining_letters, 16	; faz o controle de caracteres para alinhar os valores
 	mov si, item_name
 
 	xor bx, bx
 	mov cx, 0FFh
-	count_letters:
+	count_letters:	; conta as letras do preço do produto
 		cmp products[si+bx], '$'
 		je printa
 
@@ -189,17 +192,17 @@ printline_proc:
 		loop count_letters
 
 	printa:
-		sub remaining_letters, bl
+		sub remaining_letters, bl	; subtrai a quantidade de caracteres da palavra dos espaços restantes
 		printer products, item_name
 
 	xor cx, cx
 	mov cl, remaining_letters
-	sub cx, 6	; number of chars for price + '.'
+	sub cx, 6	; número de caracteres máximo por preço + '.'
 
 
 	push ax
 	push dx
-	print_spaces:
+	print_spaces:	; imprime a quantidade de espaços necessários para que o preço fique alinhado à direita
 		mov ah, 5
 		mov dl, ' '
 		int 21h
@@ -208,18 +211,18 @@ printline_proc:
 	pop dx
 	pop ax
 
-	toString item_price
+	toString item_price	; converte o preço para string
 
+	; imprime o preço formatado com um ponto para separar reais de centavos
 	printer price_r, 0
-
 	printer_char '.'
-
 	printerln price_c, 0
 
 	popa
 	ret
 
-printtotal_proc:
+printtotal_proc:	; imprime o preço total no momento de finalização da compra
+			; bastante similar à print_line_proc
 	pusha
 	mov remaining_letters, 16
 
@@ -238,7 +241,7 @@ printtotal_proc:
 
 	xor cx, cx
 	mov cl, remaining_letters
-	sub cx, 6	; number of chars for price + '.'
+	sub cx, 6	; número de caracteres do preço + '.'
 
 
 	push ax
@@ -261,6 +264,7 @@ printtotal_proc:
 
 	popa
 	ret
+	
   get_name_position_proc:
       xor bx, bx
       xor ax, ax
